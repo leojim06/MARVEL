@@ -1,0 +1,30 @@
+{
+  "name": "marvel",
+  "version": "1.0.0",
+  "description": "Marvel: Heroes & villanos, aplicación web que enfrenta a heroes y villanos creados por Marvel",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "MEAN",
+    "2.0",
+    "MongoDB",
+    "Express",
+    "Angular",
+    "JWT"
+  ],
+  "author": "leojim06",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.15.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.35",
+    "@types/node": "^7.0.8",
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.1.5",
+    "typescript": "^2.2.1"
+  }
+}
