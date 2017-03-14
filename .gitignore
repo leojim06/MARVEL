@@ -1,6 +1,7 @@
 #Own
 /temp
 /dist
+/.vscode
 
 # Logs
 logs
