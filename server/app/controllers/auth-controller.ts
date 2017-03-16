@@ -19,7 +19,7 @@ export class AuthController {
                })
          })
       } catch (error) {
-         res.status(500).send({ 'SERVER_ERROR': error.message });
+         res.status(500).send({ SERVER_ERROR: error.message });
       }
    }
 
@@ -36,7 +36,7 @@ export class AuthController {
                });
          })
       } catch (error) {
-         res.status(500).send({ 'SERVER_ERROR': error.message });
+         res.status(500).send({ SERVER_ERROR: error.message });
       }
    }
 }

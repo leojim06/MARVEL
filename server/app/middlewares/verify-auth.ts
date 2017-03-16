@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Usuarios } from '../models/schemas';
 import { JwtAuth } from '../../config/jwt-auth';
+import { ValidatorError } from '../utils/validator-error';
 
 export class VerifyAuth {
    verifyRole(role: string) {
@@ -12,27 +13,32 @@ export class VerifyAuth {
                let decoded = JwtAuth.decodeToken(token);
                // Tiempo de token expiró
                if (decoded.exp <= Date.now()) {
-                  return res.status(400).send({ 'ERROR': 'Su sesión terminó', 'MSG': 'Reinicie sesión para continuar' });
+                  let error = ValidatorError.unauthorizen();
+                  return res.status(error.status).send(error.body);
                }
                // Verificar información de token
                Usuarios.findById(decoded._id, (err, user) => {
                   if (err) {
-                     return res.status(401).send({ 'ERROR': err, 'MSG': 'Se retiraron los privilegios del usuario' });
+                     let error = ValidatorError.constructError(err);
+                     return res.status(error.status).send(error.body);
                   }
                   if (!user) {
-                     return res.status(404).send({ 'ERROR': 'Usuario no encontrado', 'MSG': 'El usuario fue retirado durante el proceso' });
+                     let error = ValidatorError.tokenUserNotFound();
+                     return res.status(error.status).send(error.body);
                   }
-                  if (user.role === role) {
-                     next()
+                  if (user.role !== role) {
+                     let error = ValidatorError.forbidden();
+                     return res.status(error.status).send(error.body);
                   } else {
-                     return res.status(403).send({ 'ERROR': true, 'MSG': 'No posee autorización para ingresar a esta sección' });
+                     next()
                   }
                });
             } catch (error) {
-               return res.status(500).send({ 'ERROR': error });
+               return res.status(500).send({ SERVER_ERROR: error.message });
             }
          } else {
-            return res.status(422).send({ ERROR: 'Error en su solicitud', MSG: 'Inicie sesión para acceder' });
+            let error = ValidatorError.unauthorizen();
+            return res.status(error.status).send(error.body);
          }
       }
    }
@@ -46,23 +52,26 @@ export class VerifyAuth {
                let decoded = JwtAuth.decodeToken(token);
                // Tiempo de token expiró
                if (decoded.exp <= Date.now()) {
-                  return res.status(400).send({ 'ERROR': true, 'MSG': 'El token expiró' });
+                  let error = ValidatorError.unauthorizen();
+                  return res.status(error.status).send(error.body);
                }
                // Verificar información de token
                Usuarios.findById(decoded._id, (err, user) => {
                   if (err) {
-                     return res.status(500).send({ 'ERROR': 'Error con el servidor', 'MSG': 'Su petición no pudo ser procesada' });
-                  }
-                  if (!user) {
-                     return res.status(404).send({ 'ERROR': 'Usuario no encontrado', 'MSG': 'El usuario fue retirado durante el proceso' });
+                     let error = ValidatorError.constructError(err);
+                     return res.status(error.status).send(error.body);
+                  } else if (!user) {
+                     let error = ValidatorError.tokenUserNotFound();
+                     return res.status(error.status).send(error.body);
                   }
                   next();
                });
             } catch (error) {
-               return res.status(500).send({ 'ERROR': error });
+               return res.status(500).send({ SERVER_ERROR: error.message });
             }
          } else {
-            return res.status(422).send({ ERROR: 'Error en su solicitud', MSG: 'Inicie sesión para acceder' });
+            let error = ValidatorError.unauthorizen();
+            return res.status(error.status).send(error.body);
          }
       }
    }

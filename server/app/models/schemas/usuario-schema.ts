@@ -10,17 +10,38 @@ const SALT_WORK_FACTORY = 10;
 const MAX_LOGIN_ATTEMPTS: number = 5;
 const LOCK_TIME: number = 1 * 60 * 60 * 1000 // 1 hora
 
-const UsuarioSchema = new mongoose.Schema({
-   username: { type: String, required: true, unique: true, trim: true },
-   password: { type: String, required: true, trim: true },
-   email: { type: String, required: true, trim: true },
-
+export const UsuarioSchema = new mongoose.Schema({
+   username: {
+      type: String,
+      required: [true, 'El usuario es requerido'],
+      unique: true,
+      trim: true
+   },
+   password: { type: String, required: [true, 'La contraseña es requerida'], trim: true },
+   email: {
+      type: String,
+      required: [true, 'La dirección de correo es requerida'],
+      unique: true,
+      trim: true
+   },
    activated: { type: Boolean, default: false },
    role: { type: String, enum: ['SuperAdmin', 'SuperHeroe', 'SuperVillano', 'user'], default: 'user' },
 
    loginAttempts: { type: Number, required: true, default: 0 },
    lockUntil: { type: Number }
 }, { timestamps: true });
+
+UsuarioSchema.path('username').validate(function (value, respond) {
+   Usuarios.findOne({ username: value }, function (error, usuario) {
+      usuario ? respond(false) : respond(true);
+   });
+}, 'El nombre de usuario ya está registrado');
+
+UsuarioSchema.path('email').validate(function (value, respond) {
+   Usuarios.findOne({ email: value }, function (error, usuario) {
+      usuario ? respond(false) : respond(true);
+   });
+}, 'El correo electrónico ya está registrado');
 
 UsuarioSchema.pre('save', function (next) {
    let user = this;
